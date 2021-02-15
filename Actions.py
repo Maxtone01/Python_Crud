@@ -42,13 +42,13 @@ class Insert(QDialog):
         _Id = self.Id_enter.text()
 
         try:
-            self._connection = sqlite3.connect("MyDb.db")
-            self.c = self._connection.cursor()
-            self.c.execute("INSERT INTO person (Id, login) VALUES (?, ?)"
-                           , (_Id, _name))
-            self._connection.commit()
-            self.c.close()
-            self._connection.close()
+            _connection = sqlite3.connect("MyDb.db")
+            _cursor = self._connection.cursor()
+            _cursor.execute("INSERT INTO person (Id, login) VALUES (?, ?)"
+                            , (_Id, _name))
+            _connection.commit()
+            _cursor.close()
+            _connection.close()
             QMessageBox.information(QMessageBox(), "Succesful", "Succesfuly added a person")
             self.close()
         except Exception:
@@ -71,7 +71,7 @@ class Search(QDialog):
         self.search = QLineEdit()
         self.int_check = QIntValidator()
         self.search.setValidator(self.int_check)
-        self.search.setPlaceholderText("Id")
+        self.search.setPlaceholderText("Name")
         layout.addWidget(self.search)
         layout.addWidget(self.btn)
         self.setLayout(layout)
@@ -80,14 +80,34 @@ class Search(QDialog):
         _search = " "
         _search = self.search.text()
         try:
-            self._connection = sqlite3.connect("MyDb.db")
-            self.c = self._connection.cursor()
-            results = self.c.execute("SELECT * FROM person WHERE Id=" + str(_search))
+            _connection = sqlite3.connect("MyDb.db")
+            _cursor = _connection.cursor()
+            results = _cursor.execute("SELECT * FROM person WHERE Id=" + str(_search))
             row = results.fetchone()
-            searchres = "Name: " + str(row[0]) + '\n' + "Id: " + str(row[1]) + '\n'
+            searchres = "Name: " + str(row[0]) + '\n' + "Id: " + str(row[1]) + '\n' + "Quantity" + str(row[2]) + '\n'
             QMessageBox.information(QMessageBox(), 'Successful ', searchres)
-            self._connection.commit()
-            self.c.close()
-            self._connection.close()
-        except Exception:
-            QMessageBox(QMessageBox(), 'Could not find this name')
+            _connection.commit()
+            _cursor.close()
+            _connection.close()
+        except:
+            QMessageBox.warning(QMessageBox(), "Eror", "Could not find this person")
+
+
+class DropTable(QWidget):
+    def droptable(self):
+        reply = QMessageBox.question(self, 'Message', "You trying to delete your database, it means that "
+                                                      "all your values will be deleted. "
+                                                      "Do you want to do it anyway?", QMessageBox.Yes |
+                                     QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            try:
+                _connection = sqlite3.connect("MyDb.db")
+                _cursor = _connection.cursor()
+                _cursor.execute("DELETE FROM person")
+                QMessageBox.information(QMessageBox(), 'Successful', 'All data was deleted successful.')
+                _connection.commit()
+                _cursor.close()
+            except:
+                pass
+        elif reply == QMessageBox.No:
+                QMessageBox.information(QMessageBox(), 'Exit', 'Exit.')
