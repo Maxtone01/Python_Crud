@@ -142,6 +142,13 @@ class MainWindow(QMainWindow):
                     _grade = sheet[row][2].value
                     _connection = sqlite3.connect("MyDb.db")
                     _cursor = _connection.cursor()
+                    
+                    _cursor.execute("SELECT * FROM person WHERE Teacher=?",
+                                    (_teacher,))
+
+                    if _cursor.fetchone():
+                        continue
+                    
                     _cursor.execute("INSERT INTO person (Teacher, Quantity, Grade) VALUES (?, ?, ?)",
                                 (_teacher, _quantity, _grade))
                     _connection.commit()
